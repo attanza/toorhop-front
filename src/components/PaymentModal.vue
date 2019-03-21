@@ -94,19 +94,19 @@
                 >
                   <v-flex xs6 class="mx-2">
                     <label>Card Number</label>
-                    <input type="text" v-model="cardNumber">
+                    <input type="text" v-model="cardNumber" placeholder="4811 1111 1111 1114">
                   </v-flex>
                   <v-flex xs6 class="mx-2">
                     <label>Card CVV</label>
-                    <input type="text" v-model="cardCvv" size="4">
+                    <input type="text" v-model="cardCvv" size="4" placeholder="123">
                   </v-flex>
                   <v-flex xs6 class="mx-2">
                     <label>Expiration (Month)</label>
-                    <input type="text" v-model="expMonth" size="2">
+                    <input type="text" v-model="expMonth" size="2" placeholder="01">
                   </v-flex>
                   <v-flex xs6 class="mx-2">
                     <label>Expiration (Year)</label>
-                    <input type="text" v-model="expYear" size="4">
+                    <input type="text" v-model="expYear" size="4" placeholder="2020">
                   </v-flex>
                   <v-flex xs12>
                     <v-btn @click="getToken" :loading="loading" color="primary">Process</v-btn>
@@ -200,10 +200,10 @@ export default {
       currentResponse: null,
       vaNumber: null,
       loading: false,
-      cardNumber: '4811 1111 1111 1114',
-      cardCvv: '123',
-      expMonth: '01',
-      expYear: '20',
+      cardNumber: '',
+      cardCvv: '',
+      expMonth: '',
+      expYear: '',
       midtransUrl: null,
       tokenId: null
     }
@@ -326,9 +326,9 @@ export default {
             this.e1 = 3
             this.title = 'Complete Order'
           } else {
+            alert(JSON.stringify(resp.data))
             this.onClose()
           }
-          alert(JSON.stringify(resp.data))
         }
         this.loading = false
       } catch (e) {
