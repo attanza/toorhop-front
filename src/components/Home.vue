@@ -1,38 +1,53 @@
 <template>
-  <v-app>
-    <div class="grid-container">
-      <div class="grid-x grid-margin-x">
-        <div class="cell">
-          <h1>Mitrans Test</h1>
-          <p>Product we're selling is below.
-            <br>Send as much information as possible to Midtrans.
-            <br>
-            Cost of item is IDR {{ product.total.toLocaleString() }} which is in the currency Midtrans needs.
-            <br>Adjust as needed.
-          </p>
-          <pre>{{ product }}</pre>
-          <p>
-            <button
-              class="button primary"
-              v-on:click="payWithMidtrans"
-            >Pay IDR {{ product.total.toLocaleString() }}</button>
-          </p>
-        </div>
+  <div class="grid-container">
+    <div class="grid-x grid-margin-x" v-if="paymentStep && paymentStep === 1">
+      <div class="cell">
+        <h1>Mitrans Test</h1>
+        <p>
+          Product we're selling is below.
+          <br>Send as much information as possible to Midtrans.
+          <br>
+          Cost of item is IDR {{ product.total.toLocaleString() }} which is in the currency Midtrans needs.
+          <br>Adjust as needed.
+        </p>
+        <pre>{{ product }}</pre>
+        <p>
+          <button
+            class="button primary"
+            v-on:click="payWithMidtrans"
+          >Pay IDR {{ product.total.toLocaleString() }}</button>
+        </p>
       </div>
     </div>
-    <payment-modal :show="showModal" @onClose="showModal = false" :order-detail="orderDetail"></payment-modal>
-  </v-app>
+    <div class="grid-x grid-margin-x" v-if="paymentStep && paymentStep === 2">
+      <div class="cell">
+        <select-payment></select-payment>
+      </div>
+    </div>
+    <div class="grid-x grid-margin-x" v-if="paymentStep && paymentStep === 3">
+      <div class="cell">
+        <order-detail></order-detail>
+      </div>
+    </div>
+    <div class="grid-x grid-margin-x" v-if="paymentStep && paymentStep === 4">
+      <div class="cell">
+        <payment-summary></payment-summary>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-import PaymentModal from './PaymentModal'
 import moment from 'moment'
+import SelectPayment from './SelectPayment'
+import OrderDetail from './OrderDetail'
+import PaymentSummary from './PaymentSummary'
 export default {
-  components: { PaymentModal },
   name: 'home',
   metaInfo: {
     title: 'Toorhop — Midtrans'
   },
+  components: { SelectPayment, OrderDetail, PaymentSummary },
   data () {
     return {
       product: {
@@ -52,6 +67,11 @@ export default {
       },
       showModal: false,
       orderDetail: {}
+    }
+  },
+  computed: {
+    paymentStep () {
+      return this.$store.state.paymentStep
     }
   },
   methods: {
@@ -89,7 +109,12 @@ export default {
         item_details: itemDetails,
         order_id: orderId
       }
-      this.showModal = true
+      this.$store.commit('setOrderDetails', {
+        customer_details: customerDetails,
+        item_details: itemDetails,
+        order_id: orderId
+      })
+      this.$store.commit('setPaymentStep', 2)
     }
   }
 }

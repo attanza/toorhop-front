@@ -11,7 +11,11 @@ export const store = new Vuex.Store({
     redirectAfterLoginRegister: null,
     defaultCurrency: 'USD',
     currencyConversions: null,
-    preferredLanguage: 'en'
+    preferredLanguage: 'en',
+    paymentStep: 1,
+    orderDetails: null,
+    currentPayment: null,
+    vaNumber: ''
   },
   mutations: {
     setUser (state, payload) {
@@ -31,34 +35,46 @@ export const store = new Vuex.Store({
     },
     setPreferredLanguage (state, payload) {
       state.preferredLanguage = payload
+    },
+    setPaymentStep (state, payload) {
+      state.paymentStep = payload
+    },
+    setOrderDetails (state, payload) {
+      state.orderDetails = payload
+    },
+    setCurrentPayment (state, payload) {
+      state.currentPayment = payload
+    },
+    setVaNumber (state, payload) {
+      state.vaNumber = payload
     }
   },
   actions: {
-    setUser ({commit}, payload) {
+    setUser ({ commit }, payload) {
       commit('setUser', payload)
     },
-    signUserUp ({commit}, payload) {
+    signUserUp ({ commit }, payload) {
       commit('setUser', payload)
     },
-    signUserIn ({commit}, payload) {
+    signUserIn ({ commit }, payload) {
       commit('setUser', payload)
     },
-    signUserOut ({commit}) {
+    signUserOut ({ commit }) {
       commit('setUser', null)
     },
-    setReferredBy ({commit}, payload) {
+    setReferredBy ({ commit }, payload) {
       commit('setReferredBy', payload)
     },
-    setRedirectAfterLoginRegister ({commit}, payload) {
+    setRedirectAfterLoginRegister ({ commit }, payload) {
       commit('setRedirectAfterLoginRegister', payload)
     },
-    setDefaultCurrency ({commit}, payload) {
+    setDefaultCurrency ({ commit }, payload) {
       commit('setDefaultCurrency', payload)
     },
-    setCurrencyConversions ({commit}, payload) {
+    setCurrencyConversions ({ commit }, payload) {
       commit('setCurrencyConversions', payload)
     },
-    setPreferredLanguage ({commit}, payload) {
+    setPreferredLanguage ({ commit }, payload) {
       commit('setPreferredLanguage', payload)
     }
   },
