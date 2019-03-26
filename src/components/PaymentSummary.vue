@@ -47,12 +47,9 @@ export default {
       return this.$store.state.vaNumber
     }
   },
-  mounted () {
-    console.log('this.vaNumber', this.vaNumber)
-  },
   methods: {
     back () {
-      this.$store.commit('setPaymentStep', 1)
+      this.clearStore()
     },
     getAmount () {
       let total = 0
@@ -70,6 +67,12 @@ export default {
       const now = moment()
       now.add(1, 'days')
       return now.format('D MMMM YYYY HH:mm')
+    },
+    clearStore () {
+      this.$store.commit('setPaymentStep', 1)
+      this.$store.commit('setOrderDetails', null)
+      this.$store.commit('setCurrentPayment', null)
+      this.$store.commit('setVaNumber', '')
     }
   }
 }

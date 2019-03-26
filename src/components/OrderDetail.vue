@@ -1,25 +1,85 @@
 <template>
   <div>
-    <h1>Order Detail</h1>
-    <table v-if="orderDetails">
-      <tr>
-        <th>Order Id</th>
-        <td>{{orderDetails.order_id}}</td>
-      </tr>
-      <tr>
-        <th>Amount</th>
-        <td>{{ getAmount().toLocaleString() }}</td>
-      </tr>
-    </table>
-    <div v-if="currentPayment && currentPayment.instructions && currentPayment.instructions.length">
-      <h4>Instructions:</h4>
-      <div v-for="instruction in currentPayment.instructions" :key="instruction.id">
-        <h5>{{instruction.name}}</h5>
-        <div v-html="instruction.content"></div>
+    <div v-if="!midtransUrl">
+      <h1>Order Detail</h1>
+      <table v-if="orderDetails">
+        <tr>
+          <th>Order Id</th>
+          <td>{{orderDetails.order_id}}</td>
+        </tr>
+        <tr>
+          <th>Amount</th>
+          <td>{{ getAmount().toLocaleString() }}</td>
+        </tr>
+      </table>
+      <div v-if="currentPayment && currentPayment.slug === 'credit-card'">
+        <form>
+          <div class="grid-container">
+            <div class="grid-x grid-padding-x">
+              <div class="medium-6 cell">
+                <label>
+                  Card Number
+                  <input
+                    type="text"
+                    v-model="cardNumber"
+                    placeholder="4811 1111 1111 1114"
+                  >
+                </label>
+              </div>
+              <div class="medium-6 cell">
+                <label>
+                  Card CVV
+                  <input type="text" v-model="cardCvv" size="4" placeholder="123">
+                </label>
+              </div>
+              <div class="medium-6 cell">
+                <label>
+                  Month Expiry
+                  <input type="text" v-model="expMonth" size="2" placeholder="01">
+                </label>
+              </div>
+              <div class="medium-6 cell">
+                <label>
+                  Year Expiry
+                  <input type="text" v-model="expYear" size="4" placeholder="2020">
+                </label>
+              </div>
+            </div>
+          </div>
+        </form>
       </div>
+      <div
+        v-if="currentPayment && currentPayment.slug !== 'credit-card' && currentPayment.instructions && currentPayment.instructions.length"
+      >
+        <h4>Instructions:</h4>
+        <div v-for="instruction in currentPayment.instructions" :key="instruction.id">
+          <h5>{{instruction.name}}</h5>
+          <div v-html="instruction.content"></div>
+        </div>
+      </div>
+      <button class="button secondary" @click="back">Back</button>
+      <button
+        v-if="currentPayment && currentPayment.slug !== 'credit-card'"
+        :class="{'button': true, 'primary': true, 'disabled': loading}"
+        @click="process"
+      >Process</button>
+      <button
+        v-if="currentPayment && currentPayment.slug === 'credit-card'"
+        :class="{'button': true, 'primary': true, 'disabled': loading}"
+        @click="getToken"
+      >Get Token</button>
     </div>
-    <button class="button secondary" @click="back">Back</button>
-    <button :class="{'button': true, 'primary': true, 'disabled': loading}" @click="process">Process</button>
+    <div v-if="midtransUrl">
+      <iframe
+        :src="midtransUrl"
+        frameborder="0"
+        width="100%"
+        height="600px"
+        crossorigin="anonymous"
+        target="_parent"
+        ref="cardFrame"
+      ></iframe>
+    </div>
   </div>
 </template>
 
@@ -29,7 +89,13 @@ import { setHeaders, getVa, getVars } from '../lib'
 export default {
   data () {
     return {
-      loading: false
+      loading: false,
+      cardNumber: '',
+      cardCvv: '',
+      expMonth: '',
+      expYear: '',
+      midtransUrl: null,
+      tokenId: null
     }
   },
   computed: {
@@ -39,10 +105,6 @@ export default {
     orderDetails () {
       return this.$store.state.orderDetails
     }
-  },
-  mounted () {
-    console.log('this.currentPayment', this.currentPayment)
-    console.log('this.orderDetails', this.orderDetails)
   },
   methods: {
     back () {
@@ -82,7 +144,7 @@ export default {
               this.$store.commit('setPaymentStep', 4)
             } else {
               alert(JSON.stringify(resp.data))
-              this.onClose()
+              this.clearStore()
             }
           }
           this.loading = false
@@ -91,6 +153,56 @@ export default {
         console.log(e)
         this.loading = false
       }
+    },
+    async getToken () {
+      if (
+        this.cardNumber === '' &&
+        this.cardCvv === '' &&
+        this.expMonth === '' &&
+        this.expYear === ''
+      ) {
+        alert('Please fill the form')
+        return
+      }
+      this.loading = true
+      // eslint-disable-next-line
+      Veritrans.url = getVars.midtransUrl() + "/v2/token";
+      // eslint-disable-next-line
+      Veritrans.client_key = getVars.midtransClientKey();
+      const card = () => {
+        return {
+          card_number: this.cardNumber,
+          card_cvv: this.cardCvv,
+          card_exp_month: this.expMonth,
+          card_exp_year: this.expYear,
+          secure: true,
+          gross_amount: this.getAmount()
+        }
+      }
+
+      const callback = async response => {
+        if (response.redirect_url) {
+          this.midtransUrl = response.redirect_url
+        } else if (response.status_code === '200') {
+          this.midtransUrl = null
+          // Submit form
+          this.orderDetails.token_id = response.token_id
+          await this.process()
+        } else {
+          this.midtransUrl = null
+          // Failed request token
+          alert(response.status_message)
+          this.clearStore()
+        }
+      }
+      // eslint-disable-next-line
+      Veritrans.token(card, callback);
+    },
+    clearStore () {
+      this.$store.commit('setPaymentStep', 1)
+      this.$store.commit('setOrderDetails', null)
+      this.$store.commit('setCurrentPayment', null)
+      this.$store.commit('setVaNumber', '')
     }
   }
 }
