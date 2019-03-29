@@ -66,7 +66,7 @@ export default {
       // Expiry setting can be set at midtrans dashboard
       const now = moment()
       now.add(1, 'days')
-      return now.format('D MMMM YYYY HH:mm')
+      return now.format('D MMMM YYYY hh:mm A')
     },
     clearStore () {
       this.$store.commit('setPaymentStep', 1)
