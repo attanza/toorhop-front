@@ -20,6 +20,7 @@
     "firebase-auth": "^0.1.2",
     "foundation-sites": "^6.4.4-rc1",
     "jsonwebtoken": "^8.5.0",
+    "midtrans-client": "^1.0.3",
     "moment": "^2.19.3",
     "moment-timezone": "^0.5.23",
     "node-sass": "^4.10.0",

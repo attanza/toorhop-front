@@ -24,6 +24,8 @@
 
 <script>
 import moment from 'moment'
+import { SNAP_TOKEN_URL } from '../lib/apis.js'
+import axios from 'axios'
 export default {
   name: 'home',
   metaInfo: {
@@ -51,7 +53,7 @@ export default {
     }
   },
   methods: {
-    payWithMidtrans () {
+    async payWithMidtrans () {
       /**
        * customer details
        * info of your costumers
@@ -80,12 +82,39 @@ export default {
        */
       const orderId = moment().unix()
 
-      this.orderDetail = {
+      const transactionDetails = {
         customer_details: customerDetails,
         item_details: itemDetails,
         order_id: orderId
       }
-      alert('pay')
+      // console.log('transactionDetail', transactionDetail)
+
+      try {
+        const resp = await axios
+          .post(SNAP_TOKEN_URL, transactionDetails)
+          .then(res => res.data)
+        if (resp.meta.status === 200) {
+          const { transactionToken } = resp.data
+          // Open Snap popup with defined callbacks.
+          // eslint-disable-next-line no-undef
+          snap.pay(transactionToken, {
+            onSuccess: function (result) {
+              // TODO: Modify your database acordingly
+              console.log('SUCCESS', result)
+            },
+            onPending: function (result) {
+              // TODO: Modify your database acordingly
+              console.log('Payment pending', result)
+            },
+            onError: function () {
+              // TODO: parse the error properly
+              console.log('Payment error')
+            }
+          })
+        }
+      } catch (e) {
+        console.log('e', e)
+      }
     }
   }
 }
