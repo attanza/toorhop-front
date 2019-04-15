@@ -1,6 +1,6 @@
 <template>
   <div class="grid-container">
-    <div class="grid-x grid-margin-x" v-if="paymentStep && paymentStep === 1">
+    <div class="grid-x grid-margin-x">
       <div class="cell">
         <h1>Mitrans Test</h1>
         <p>
@@ -19,35 +19,16 @@
         </p>
       </div>
     </div>
-    <div class="grid-x grid-margin-x" v-if="paymentStep && paymentStep === 2">
-      <div class="cell">
-        <select-payment></select-payment>
-      </div>
-    </div>
-    <div class="grid-x grid-margin-x" v-if="paymentStep && paymentStep === 3">
-      <div class="cell">
-        <order-detail></order-detail>
-      </div>
-    </div>
-    <div class="grid-x grid-margin-x" v-if="paymentStep && paymentStep === 4">
-      <div class="cell">
-        <payment-summary></payment-summary>
-      </div>
-    </div>
   </div>
 </template>
 
 <script>
 import moment from 'moment'
-import SelectPayment from './SelectPayment'
-import OrderDetail from './OrderDetail'
-import PaymentSummary from './PaymentSummary'
 export default {
   name: 'home',
   metaInfo: {
     title: 'Toorhop — Midtrans'
   },
-  components: { SelectPayment, OrderDetail, PaymentSummary },
   data () {
     return {
       product: {
@@ -67,11 +48,6 @@ export default {
       },
       showModal: false,
       orderDetail: {}
-    }
-  },
-  computed: {
-    paymentStep () {
-      return this.$store.state.paymentStep
     }
   },
   methods: {
@@ -109,12 +85,7 @@ export default {
         item_details: itemDetails,
         order_id: orderId
       }
-      this.$store.commit('setOrderDetails', {
-        customer_details: customerDetails,
-        item_details: itemDetails,
-        order_id: orderId
-      })
-      this.$store.commit('setPaymentStep', 2)
+      alert('pay')
     }
   }
 }

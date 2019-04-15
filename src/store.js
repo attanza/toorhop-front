@@ -11,11 +11,7 @@ export const store = new Vuex.Store({
     redirectAfterLoginRegister: null,
     defaultCurrency: 'USD',
     currencyConversions: null,
-    preferredLanguage: 'en',
-    paymentStep: 1,
-    orderDetails: null,
-    currentPayment: null,
-    vaNumber: ''
+    preferredLanguage: 'en'
   },
   mutations: {
     setUser (state, payload) {
