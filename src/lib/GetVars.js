@@ -3,8 +3,9 @@ class GetVars {
     if (process.env === 'production') {
       return 'https://midtrans.toorhop.com/api/v1'
     }
-    return 'https://midtrans.toorhop.com/api/dev-v1'
-    // return 'http://localhost:4444/api/dev-v1'
+    // return 'https://midtrans.toorhop.com/api/dev-v1'
+    return 'http://localhost:4444/api/dev-v1'
+    // return 'https://midtrans.toorhop.com/api/v1'
   }
 
   toorhopClientKey () {

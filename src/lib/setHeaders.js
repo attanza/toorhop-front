@@ -2,12 +2,13 @@ import jwt from 'jsonwebtoken'
 import moment from 'moment'
 import getVars from './GetVars'
 async function setHeader () {
-  const date = moment().unix()
+  const now = moment().utc()
+
   const token = await jwt.sign(
     {
-      exp: Math.floor(Date.now() / 1000) + 2 * 60,
+      exp: now.add(5, 'm').unix(),
       data: {
-        date,
+        date: now.unix(),
         client_key: getVars.toorhopClientKey()
       }
     },
@@ -15,7 +16,7 @@ async function setHeader () {
   )
 
   return {
-    'x-toorhop-date': date,
+    'x-toorhop-date': now.unix(),
     'x-toorhop-key': getVars.toorhopClientKey(),
     'x-toorhop-token': token
   }
