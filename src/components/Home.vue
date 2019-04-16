@@ -24,8 +24,9 @@
 
 <script>
 import moment from 'moment'
-import { SNAP_TOKEN_URL } from '../lib/apis.js'
+import { SNAP_TOKEN_URL, NOTIF_HANDLER_URL } from '../lib/apis.js'
 import axios from 'axios'
+import setHeaders from '../lib/setHeaders.js'
 export default {
   name: 'home',
   metaInfo: {
@@ -90,8 +91,11 @@ export default {
       // console.log('transactionDetail', transactionDetail)
 
       try {
+        const headers = await setHeaders()
         const resp = await axios
-          .post(SNAP_TOKEN_URL, transactionDetails)
+          .post(SNAP_TOKEN_URL, transactionDetails, {
+            headers
+          })
           .then(res => res.data)
         if (resp.meta.status === 200) {
           const { transactionToken } = resp.data
@@ -99,15 +103,15 @@ export default {
           // eslint-disable-next-line no-undef
           snap.pay(transactionToken, {
             onSuccess: function (result) {
-              // TODO: Modify your database acordingly
+              axios.post(NOTIF_HANDLER_URL, result)
               console.log('SUCCESS', result)
             },
             onPending: function (result) {
-              // TODO: Modify your database acordingly
+              axios.post(NOTIF_HANDLER_URL, result)
               console.log('Payment pending', result)
             },
             onError: function () {
-              // TODO: parse the error properly
+              // TODO: parse error properly
               console.log('Payment error')
             }
           })
